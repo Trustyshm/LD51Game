@@ -10,6 +10,17 @@ TagManager:
   - MilkStation
   - TeaStation
   - IceStation
+  - DrinkController
+  - RegisterSpot
+  - NextRegister
+  - LeaveSpot
+  - OrderController
+  - GameCont
+  - RegisterStation
+  - TheCups
+  - NPC
+  - MenuController
+  - PSave
   layers:
   - Default
   - TransparentFX
@@ -17,7 +28,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Over
   - 
   - 
   - 
@@ -46,4 +57,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Pouring
+    uniqueID: 771182259
     locked: 0

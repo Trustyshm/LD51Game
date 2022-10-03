@@ -15,19 +15,38 @@ public class IconsController : MonoBehaviour
     public GameObject threeBig;
     public GameObject fourBig;
     public GameObject uiBlur;
+    public GameObject replaceButton;
+    public GameObject theCup;
+    public GameObject teaRack;
 
-    public ControlPlayer playerControls;
+    public bool isTeas;
+
+    public bool isIce;
+
+    public GameObject exitButton;
+
+    private bool doOnce;
+
+
+
+
+    private ControlPlayer playerControls;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        playerControls = GameObject.FindGameObjectWithTag("Player").GetComponent<ControlPlayer>();
+    }
+
+    private void OnEnable()
+    {
+        doOnce = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     public void ClickedOne()
@@ -35,9 +54,14 @@ public class IconsController : MonoBehaviour
         firstIcon.SetActive(false);
         secondIcon.SetActive(false);
         thirdIcon.SetActive(false);
+        replaceButton.SetActive(true);
         if (fourthIcon != null)
         {
             fourthIcon.SetActive(false);
+        }
+        if (isTeas)
+        {
+            teaRack.SetActive(false);
         }
 
         oneBig.SetActive(true);
@@ -48,23 +72,31 @@ public class IconsController : MonoBehaviour
         firstIcon.SetActive(false);
         secondIcon.SetActive(false);
         thirdIcon.SetActive(false);
+        replaceButton.SetActive(true);
         if (fourthIcon != null)
         {
             fourthIcon.SetActive(false);
         }
-
+        if (isTeas)
+        {
+            teaRack.SetActive(false);
+        }
         twoBig.SetActive(true);
     }
     public void ClickedThree()
     {
         firstIcon.SetActive(false);
         secondIcon.SetActive(false);
+        replaceButton.SetActive(true);
         thirdIcon.SetActive(false);
         if (fourthIcon != null)
         {
             fourthIcon.SetActive(false);
         }
-
+        if (isTeas)
+        {
+            teaRack.SetActive(false);
+        }
         threeBig.SetActive(true);
     }
     public void ClickedFour()
@@ -73,7 +105,7 @@ public class IconsController : MonoBehaviour
         secondIcon.SetActive(false);
         thirdIcon.SetActive(false);
         fourthIcon.SetActive(false);
-
+        replaceButton.SetActive(true);
         fourBig.SetActive(true);
     }
 
@@ -86,10 +118,15 @@ public class IconsController : MonoBehaviour
         {
             fourthIcon.SetActive(true);
         }
-
+        replaceButton.SetActive(false);
         oneBig.SetActive(false);
         twoBig.SetActive(false);
         threeBig.SetActive(false);
+        if (isTeas)
+        {
+            teaRack.SetActive(true);
+            replaceButton.SetActive(true);
+        }
         if (fourBig != null)
         {
             fourBig.SetActive(false);
@@ -98,11 +135,17 @@ public class IconsController : MonoBehaviour
 
     public void FinishedPouring()
     {
-        ResetButtons();
+        
+        if (!isIce)
+        {
+            ResetButtons();
+        }
+        theCup.SetActive(false);
         uiBlur.gameObject.SetActive(false);
         playerControls.canMove = true;
+        Debug.Log("ran exit code");
         this.gameObject.SetActive(false);
-
+        
     }
 
 }

@@ -10,6 +10,8 @@ public class ControlPlayer : MonoBehaviour
     CharacterController characterController;
     Animator anim;
 
+    public GameObject theHandCup;
+
     public float movementSpeed = 2f;
     public float runningSpeed = 3f;
     private Vector2 currentMoveInput;
@@ -33,14 +35,38 @@ public class ControlPlayer : MonoBehaviour
     public GameObject teaUI;
     public GameObject flavorUI;
     public GameObject milkUI;
+    public GameObject iceUI;
     public GameObject uiBlur;
 
+    public GameObject theCup;
 
+    public bool hasOrder;
+
+    private OrderController orderController;
+    private DrinkController drinkController;
+    private GameController gameController;
+
+    public GameObject coffeeIUI;
+    public GameObject flavorIUI;
+    public GameObject milkIUI;
+    public GameObject iceIUI;
+    public GameObject teaIUI;
+
+    public bool isFemale;
+
+    public AudioSource soundEffects;
+    public AudioClip registerSound;
+    public AudioClip cupSound;
+
+    public bool isImpossible;
 
     void Awake()
     {
         playerMovement = new PlayerMovement();
         characterController = GetComponent<CharacterController>();
+        orderController = GameObject.FindGameObjectWithTag("OrderController").GetComponent<OrderController>();
+        drinkController = GameObject.FindGameObjectWithTag("DrinkController").GetComponent<DrinkController>();
+        gameController = GameObject.FindGameObjectWithTag("GameCont").GetComponent<GameController>();
         anim = GetComponent<Animator>();
         canMove = true;
         isWalkingHash = Animator.StringToHash("isWalking");
@@ -97,24 +123,24 @@ public class ControlPlayer : MonoBehaviour
 
     void doAnimation()
     {
-        bool isWalking = anim.GetBool(isWalkingHash);
-        bool isRunning = anim.GetBool(isRunningHash);
+        bool isWalking = anim.GetBool("isWalking");
+        bool isRunning = anim.GetBool("isRunning");
 
         if (isMovingPressed && !isWalking)
         {
-            anim.SetBool(isWalkingHash, true);
+            anim.SetBool("isWalking", true);
         }
         else if (!isMovingPressed && isWalking)
         {
-            anim.SetBool(isWalkingHash, false);
+            anim.SetBool("isWalking", false);
         }
 
         if ((isMovingPressed && isRunPressed) && !isRunning)
         {
-            anim.SetBool(isRunningHash, true);
+            anim.SetBool("isRunning", true);
         } else if ((!isMovingPressed || !isRunPressed) && isRunning)
         {
-            anim.SetBool(isRunningHash, false);
+            anim.SetBool("isRunning", false);
         }
 
     }
@@ -133,9 +159,12 @@ public class ControlPlayer : MonoBehaviour
                 hitObject = hit.transform.gameObject;
                 if (isInteractPressed)
                 {
+                    anim.SetBool("isWalking", false);
                     coffeeUI.SetActive(true);
+                    coffeeIUI.SetActive(false);
                     canMove = false;
                     uiBlur.SetActive(true);
+                    theCup.SetActive(true);
                 }
             }
             if (hit.transform.gameObject.CompareTag("FlavorStation"))
@@ -144,9 +173,12 @@ public class ControlPlayer : MonoBehaviour
                 hitObject = hit.transform.gameObject;
                 if (isInteractPressed)
                 {
+                    anim.SetBool("isWalking", false);
                     flavorUI.SetActive(true);
+                    flavorIUI.SetActive(false);
                     canMove = false;
                     uiBlur.SetActive(true);
+                    theCup.SetActive(true);
                 }
             }
             if (hit.transform.gameObject.CompareTag("TeaStation"))
@@ -155,9 +187,12 @@ public class ControlPlayer : MonoBehaviour
                 hitObject = hit.transform.gameObject;
                 if (isInteractPressed)
                 {
+                    anim.SetBool("isWalking", false);
                     teaUI.SetActive(true);
+                    teaIUI.SetActive(false);
                     canMove = false;
                     uiBlur.SetActive(true);
+                    theCup.SetActive(true);
                 }
             }
             if (hit.transform.gameObject.CompareTag("MilkStation"))
@@ -166,9 +201,62 @@ public class ControlPlayer : MonoBehaviour
                 hitObject = hit.transform.gameObject;
                 if (isInteractPressed)
                 {
+                    anim.SetBool("isWalking", false);
                     milkUI.SetActive(true);
+                    milkIUI.SetActive(false);
                     canMove = false;
                     uiBlur.SetActive(true);
+                    theCup.SetActive(true);
+                }
+            }
+            if (hit.transform.gameObject.CompareTag("IceStation"))
+            {
+                hit.transform.GetChild(0).gameObject.SetActive(true);
+                hitObject = hit.transform.gameObject;
+                if (isInteractPressed)
+                {
+                    anim.SetBool("isWalking", false);
+                    iceUI.SetActive(true);
+                    iceIUI.SetActive(false);
+                    canMove = false;
+                    uiBlur.SetActive(true);
+                    theCup.SetActive(true);
+                }
+            }
+            if (hit.transform.gameObject.CompareTag("RegisterStation"))
+            {
+                hit.transform.GetChild(0).gameObject.SetActive(true);
+                hitObject = hit.transform.gameObject;
+                if (isInteractPressed)
+                {
+                    soundEffects.clip = registerSound;
+                    soundEffects.Play();
+                    //Check if npc waiting
+                    if (!hasOrder && orderController.registeredNPC != null)
+                    {
+                        hasOrder = true;
+                        orderController.CreateOrder();
+                    }
+                    else if (hasOrder && !drinkController.isEmpty)
+                    {
+                        Debug.Log("Oops");
+                        orderController.CheckOrder();
+                    }
+                    else
+                    {
+                        //Do Nothing
+                    }
+                }
+            }
+            if (hit.transform.gameObject.CompareTag("TheCups"))
+            {
+                hit.transform.GetChild(0).gameObject.SetActive(true);
+                hitObject = hit.transform.gameObject;
+                if (isInteractPressed)
+                {
+                    soundEffects.clip = cupSound;
+                    soundEffects.Play();
+                    drinkController.ResetDrink();
                 }
             }
         }
@@ -188,6 +276,10 @@ public class ControlPlayer : MonoBehaviour
     {
         if (canMove)
         {
+            if (!isImpossible)
+            {
+                gameController.gameRunning = true;
+            }
             doRotation();
             doAnimation();
 
@@ -201,7 +293,25 @@ public class ControlPlayer : MonoBehaviour
             }
 
             doRaycast();
-        }        
+        }
+        else
+        {
+            if (!isImpossible)
+            {
+                gameController.gameRunning = false;
+            }
+            
+        }
+        if (hasOrder)
+        {
+            theHandCup.SetActive(true);
+            anim.SetBool("HasCup", true);
+        }
+        if (!hasOrder)
+        {
+            theHandCup.SetActive(false);
+            anim.SetBool("HasCup", false);
+        }
     }
 
     void LateUpdate()
